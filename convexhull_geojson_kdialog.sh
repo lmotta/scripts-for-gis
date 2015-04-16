@@ -46,5 +46,5 @@ then
       kdialog --title $title --sorry "Error!.\n\n$fileOgr\n\n$msg"
   fi
 else
-  kdialog --title $title  --sorry "Not selected file."
+  kdialog --title $title --passivepopup "Not Select File!" 5
 fi
