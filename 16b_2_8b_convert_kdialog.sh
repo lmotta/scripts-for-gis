@@ -41,9 +41,9 @@ then
   kdialog --title $title --passivepopup "Processing:\n$img" 5
   if msg=$(16b_2_8b_convert.sh $img)
     then
-      kdialog --title $title --msgbox "Finished.\n\n$img"
+      kdialog --title $title --msgbox "Finished.\n$msg"
     else
-      kdialog --title $title --sorry "Error!.\n\n$img\n\n$msg"
+      kdialog --title $title --sorry "Error!.\n$msg"
   fi
 else
   kdialog --title $title --passivepopup "Not Select File!" 5

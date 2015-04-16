@@ -89,10 +89,10 @@ fi
 temp_dir=$(mktemp -d)
 basename_img=$(basename $in_img)
 #
-echo "Converting $basename_img to 8bits..."
+printf "Converting $basename_img to 8bits..."
 #
 calc_arrays $in_img
-rm "$in_img.aConvert 16 to 8 bits.\n$imgux.xml"
+rm "$in_img.aux.xml"
 #
 # Single bands with 8bits
 for item in ${aryIndex[@]}
@@ -121,5 +121,7 @@ fi
 mv "$temp_dir/$basename_img" $in_img
 # Clean
 rm -r $temp_dir
+#
+printf "Finished."
 #
 exit 0

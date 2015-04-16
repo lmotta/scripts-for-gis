@@ -43,7 +43,7 @@ then
     then
       kdialog --title $title --msgbox "Finished.\n$msg"
     else
-      kdialog --title $title --sorry "Error!.\n\n$fileOgr\n\n$msg"
+      kdialog --title $title --sorry "Error!.\n$msg"
   fi
 else
   kdialog --title $title --passivepopup "Not Select File!" 5
