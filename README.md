@@ -47,7 +47,7 @@ ls -1 *.geojson | parallel convexhull_geojson.py {}
 * Adds the footprint (GeoJson) inside shapefile (if not exist it is created)  
 * Dependeces: gdal 1.10.1(ogr2ogr)  
 * Example (NOT USE parallel!):  
-for item in \$(ls -1 *.geojson); do footprint_append_shp.sh \$item LC8_footprint.shp; done
+for item in $(ls -1 *.geojson); do footprint_append_shp.sh \$item LC8_footprint.shp; done
 
 ### thumbnail_gdal.sh
 * Create thumbnail file(PNG) from image  
