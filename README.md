@@ -12,7 +12,7 @@
 ## Scripts
 
 ### 16b_2_8b_convert.sh
-* Convert images of 16 to 8 bits  
+* Convert images of 16 to 8 bits (overwrite original file)  
 * Dependeces: gdal 1.10.1 (gdal_translate, gdalinfo, gdalbuildvrt)  
 * Example (using parallel):  
 ls -1 *.tif | parallel 16b_2_8b_convert.sh {}  
@@ -27,27 +27,41 @@ ls -1 *.tif | parallel 16b_2_8b_convert.sh {}
 * Example (using parallel):  
 ls -1 *.tif | parallel  footprint.sh {}  
 
+### footprint_kdialog.sh
+* Using Kdialog (KDE)
+* Dependeces: footprint.py  
+
 ### footprint_add_url_tms.sh
-* Add URL of TMS in footprint(GeoJson)  
+* Add URL of TMS in footprint(GeoJson) * NOT USE for others Geojson  
 * Dependeces: None  
 * Example (using parallel):  
-ls -1 *.geojson | parallel  footprint_add_url_tms.sh {} http://10.1.8.20/test_lmotta  
+ls -1 *.geojson | parallel footprint_add_url_tms.sh {} http://10.1.8.20/test_lmotta  
 
-### convexhull_geojson.py
-* Create convexhul from Geojson (used to soften the footprint)
-* Dependeces:  GDAL Python bindings 1.10.1
+### footprint_convexhull.py
+* Create convexhull from Geojson (used to soften the footprint)
+* Dependece: GDAL Python bindings 1.10.1
 * Example (using parallel):  
-ls -1 *.geojson | parallel convexhull_geojson.py {}  
+ls -1 *.geojson | parallel footprint_convexhull.py {}  
 
-### convexhull_geojson_kdialog.sh
+### footprint_convexhull_kdialog.sh
 * Using Kdialog (KDE)
-* Dependeces: convexhull_geojson.py  
+* Dependeces: footprint_convexhull.py
+
+### footprint_extent.py
+* Create extent of image
+* Dependece: GDAL Python bindings 1.10.1
+* Example (using parallel):  
+ls -1 *.tif | parallel footprint_extent.py {}  
+
+### footprint_extent_kdialog.sh
+* Using Kdialog (KDE)
+* Dependeces: footprint_extent.py  
 
 ### footprint_append_shp.sh
-* Adds the footprint (GeoJson) inside shapefile (if not exist it is created)  
+* Adds the footprint (GeoJson), all Geojson, inside shapefile (if not exist it is created)  
 * Dependeces: gdal 1.10.1(ogr2ogr)  
 * Example (NOT USE parallel!):  
-for item in $(ls -1 *.geojson); do footprint_append_shp.sh \$item LC8_footprint.shp; done
+for item in $(ls -1 *.geojson); do footprint_append_shp.sh $item LC8_footprint.shp; done
 
 ### thumbnail_gdal.sh
 * Create thumbnail file(PNG) from image  

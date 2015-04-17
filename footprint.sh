@@ -99,7 +99,8 @@ then
   exit $code
 fi
 #
-sed -i 's/{ "DN": 1 }/{ "image": "'$name_img'" }/g' $footprint_geojson
+ssed="s|{ \"DN\": 1 }|{ \"path\": \"$dir_img\", \"image\": \"$basename_img\" }|"
+sed -i "$ssed" "$footprint_geojson"
 printf ".created: $footprint_geojson\n"
 # Cleanup
 rm $zero_one_img $sieve_img

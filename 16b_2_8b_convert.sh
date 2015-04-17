@@ -122,6 +122,6 @@ mv "$temp_dir/$basename_img" $in_img
 # Clean
 rm -r $temp_dir
 #
-printf "Finished."
+printf "Finished.\n"
 #
 exit 0

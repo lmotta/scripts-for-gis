@@ -1,13 +1,13 @@
 #!/bin/bash
 #
 # ***************************************************************************
-# Name                 : convexhull_geojson Kdialog
+# Name                 : footprint_convexhull Kdialog
 # Description          : Create convex hull. Using Kdialog
 #
 # Arguments: 
 # $1: Shapefile
 #
-# Dependencies         : KDE and convexhull_geojson.py
+# Dependencies         : KDE and footprint_convexhull.py
 #
 # ***************************************************************************
 # begin                : 2015-04-15 (yyyy-mm-dd)
@@ -39,7 +39,7 @@ fileOgr=$(kdialog --title $title --getopenfilename $HOME "*.geojson |Geojson")
 if [ -f "$fileOgr" ]
 then
   kdialog --title $title --passivepopup "Processing:\n$fileOgr" 5
-  if msg=$(convexhull_geojson.py $fileOgr)
+  if msg=$(footprint_convexhull.py $fileOgr)
     then
       kdialog --title $title --msgbox "Finished.\n$msg"
     else

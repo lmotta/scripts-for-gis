@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-Name                 : convexhull_shp
-Description          : Create convex hull
+Name                 : footprint_convexhull
+Description          : Create convex hull fom geojson
 Arguments            : Geojson
 
                        -------------------
@@ -24,6 +24,7 @@ email                : motta dot luiz at gmail.com
 
 import os, sys
 from optparse import OptionParser
+
 from osgeo import ogr
 
 def printStatus(status, newLine=False):

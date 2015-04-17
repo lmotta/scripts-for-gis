@@ -1,17 +1,16 @@
 #!/bin/bash
 #
 # ***************************************************************************
-# Name                 : Footprint append shapefile
-# Description          : Append feature of GeoJSON file to shapefile (if not exist create)
+# Name                 : Footprint Extent Kdialog
+# Description          : Create extent of image with GeoJSON format. Using Kdialog.
 #
 # Arguments: 
-# $1: Shapefile
-# $2: GeoJSON
+# $1: Image
 #
-# Dependencies         : gdal 1.10.1(ogr2ogr)
+# Dependencies         : KDE and footprint_extent.py
 #
 # ***************************************************************************
-# begin                : 2015-03-02 (yyyy-mm-dd)
+# begin                : 2015-04-15 (yyyy-mm-dd)
 # copyright            : (C) 2015 by Luiz Motta
 # email                : motta dot luiz at gmail.com
 # ***************************************************************************
@@ -20,11 +19,11 @@
 #
 # 0000-00-00:
 # - None
-#
+# 
 # ***************************************************************************
 #
 # Example:
-#   footprint_append.sh LC8_229-066_20140724_LGN00_r6g5b4.footprint_geojson LC8_footprint.shp
+#   footprint_extent_kdialog.sh
 #
 # ***************************************************************************
 # *                                                                         *
@@ -35,35 +34,17 @@
 # *                                                                         *
 # ***************************************************************************
 #
-msg_error(){
-  local name_script=$(basename $0)
-  echo "Usage: $name_script <footprint_geojson> <shapefile>" >&2
-  echo "<footprint_geojson> is the GeoJSON with footprint" >&2
-  echo "<shapefile> is the Shapefile with all footprint (NEED have extension 'shp')" >&2
-}
-#
-totalargs=2
-#
-if [ $# -ne $totalargs ] ; then
-  msg_error
-  exit 1
+title="Footprint_extent_of_image"
+img=$(kdialog --title $title --getopenfilename $HOME "*.* |Images type")
+if [ -f "$img" ]
+then
+  kdialog --title $title --passivepopup "Processing:\n$img" 5
+  if msg=$(footprint_extent.py $img)
+    then
+      kdialog --title $title --msgbox "Finished.\n$msg"
+    else
+      kdialog --title $title --sorry "Error!.\n$msg"
+  fi
+else
+  kdialog --title $title --passivepopup "Not Select File!" 5
 fi
-#
-footprint_geojson=$1
-shapefile=$2
-#
-if [ ! -f "$footprint_geojson" ] ; then
-  echo "The file '$footprint_geojson' not exist" >&2
-  msg_error
-  exit 1
-fi
-#
-if [[ ! $shapefile == *.shp ]] ; then
-  echo "The file '$shapefile' not have extension '.shp'" >&2
-  msg_error
-  exit 1
-fi
-#
-ogr2ogr -update -append -t_srs EPSG:4674 $shapefile $footprint_geojson
-printf "Add '$footprint_geojson' in '$shapefile'\n"
-exit 0
