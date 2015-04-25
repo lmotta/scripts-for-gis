@@ -1,16 +1,16 @@
 #!/bin/bash
 #
 # ***************************************************************************
-# Name                 : Footprint Add URL of TMS
-# Description          : Add URL od TMS in GeoJson
+# Name                 : 2 RGB
+# Description          : Create file RGB (3 bands)
 #
 # Arguments: 
-# $1: GeoJSON
+# $1: Image R G B
 #
-# Dependencies         : None
+# Dependencies         : gdal 1.10.1 (gdal_translate)
 #
 # ***************************************************************************
-# begin                : 2015-03-02 (yyyy-mm-dd)
+# begin                : 2015-04-24 (yyyy-mm-dd)
 # copyright            : (C) 2015 by Luiz Motta
 # email                : motta dot luiz at gmail.com
 # ***************************************************************************
@@ -19,11 +19,11 @@
 #
 # 0000-00-00:
 # - None
-#
+# 
 # ***************************************************************************
 #
 # Example:
-#   footprint_add_url_tms.sh LC8_229-066_20140724_LGN00_r6g5b4.geoJSON http://catalog/lc8
+#   2_rgb.sh LC8_229-066_20140724_LGN00.tif 6 5 4
 #
 # ***************************************************************************
 # *                                                                         *
@@ -34,32 +34,54 @@
 # *                                                                         *
 # ***************************************************************************
 #
-msg_error(){
-  local name_script=$(basename $0)
-  echo "Usage: $name_script <footprint_geojson> <url>" >&2
-  echo "<footprint_geojson> is the footprint geoJson" >&2
-  echo "<url> is the URL of server" >&2
+#
+calc_rbgname_img(){
+local dirname=$(dirname $in_img)
+local filename=$(basename $in_img)
+local extension="${filename##*.}"
+filename="${filename%.*}"
+rbgname_img=$dirname"/"$filename"_r"$in_r"g"$in_g"b"$in_b"."$extension
 }
 #
-totalargs=2
+msg_error(){
+  local name_script=$(basename $0)
+  echo "Usage: $name_script <image> <r> <g> <b>" >&2
+  echo "<image> is the image" >&2
+  echo "<r> Number of band for R" >&2
+  echo "<g> Number of band for G" >&2
+  echo "<b> Number of band for B" >&2
+  exit 1
+}
+#
+totalargs=4
 #
 if [ $# -ne $totalargs ] ; then
   msg_error
   exit 1
 fi
 #
-footprint_geojson=$1
-url=$2
+in_img=$1
+in_r=$2
+in_g=$3
+in_b=$4
 #
-if [ ! -f "$footprint_geojson" ] ; then
-  echo "The file '$footprint_geojson' not exist" >&2
+if [ ! -f "$in_img" ] ; then
+  echo "The file '$in_img' not exist" >&2
   exit 1
 fi
 #
-basename_footprint_geojson=$(basename $footprint_geojson)
-name_footprint_geojson=${basename_footprint_geojson%.geojson}
+calc_rbgname_img
 #
-#{ "image": "LC8_229-066_20141113_LGN00_r6g5b4" }
-# Separator  = @
-sed -i 's@ }, "geometry"@, "url_tms": "'$url'/'$name_footprint_geojson'_tms.xml" }, "geometry"@g' $footprint_geojson
-
+printf "Creating "$rbgname_img"..."
+#
+gdal_translate -q -co COMPRESS=LZW -b $in_r -b $in_g -b $in_b $in_img $rbgname_img
+#
+code=$?
+if [ "$code" != 0 ]
+then
+  exit $code
+fi
+#
+printf "Finished.\n"
+#
+exit 0

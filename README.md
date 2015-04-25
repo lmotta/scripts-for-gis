@@ -11,6 +11,12 @@
 
 ## Scripts
 
+### 2_rgb.sh
+* Create RGB image (Ex.: image_r3g4b5.tif) 
+* Dependeces: gdal 1.10.1 (gdal_translate)  
+* Example (using parallel):  
+ls -1 *.tif | parallel 2_rgb.sh {} 2 4 5  
+
 ### 16b_2_8b_convert.sh
 * Convert images of 16 to 8 bits (overwrite original file)  
 * Dependeces: gdal 1.10.1 (gdal_translate, gdalinfo, gdalbuildvrt)  
@@ -20,6 +26,12 @@ ls -1 *.tif | parallel 16b_2_8b_convert.sh {}
 ### 16b_2_8b_convert_kdialog.sh
 * Using Kdialog (KDE)
 * Dependeces: 16b_2_8b_convert.sh  
+
+### check_error_img.sh
+* Check error for read image(print ERROR if exist error)  
+* Dependeces: gdal 1.10.1 (gdalinfo)  
+* Example (using parallel):  
+ls -1 *.tif | parallel check_error_img.sh {}  
 
 ### footprint.sh
 * Create GeoJson with border's polygon of image (limited with valid pixels)  
@@ -48,7 +60,7 @@ ls -1 *.geojson | parallel footprint_convexhull.py {}
 * Dependeces: footprint_convexhull.py
 
 ### footprint_extent.py
-* Create extent of image
+* Create extent of image16b_2_8b_convert
 * Dependece: GDAL Python bindings 1.10.1
 * Example (using parallel):  
 ls -1 *.tif | parallel footprint_extent.py {}  
@@ -63,17 +75,17 @@ ls -1 *.tif | parallel footprint_extent.py {}
 * Example (NOT USE parallel!):  
 for item in $(ls -1 *.geojson); do footprint_append_shp.sh $item LC8_footprint.shp; done
 
-### thumbnail_gdal.sh
+### gdal_thumbnail.sh
 * Create thumbnail file(PNG) from image  
 * Dependeces: gdal 1.10.1(gdal_translate)  
 * Example (use parallel!):  
-ls -1 *.tif | parallel thumbnail_gdal.sh {} 30  
+ls -1 *.tif | parallel gdal_thumbnail.sh {} 30  
 
 ### mk_tiles.sh
 * Create TMS structure (directories and files) and XML for GDAL_WMS driver from image  
-* Dependeces: gdal 1.10.1(gdalbuildvrt), dans-gdal-script 0.23-2(gdal_contrast_stretch), tilers-tools   3.2.0(gdal_tiler.py), thumbnail_gdal.sh  
+* Dependeces: dans-gdal-script 0.23-2(gdal_contrast_stretch), tilers-tools   3.2.0(gdal_tiler.py), gdal_thumbnail.sh  
 * Example (use parallel!):  
-ls -1 *.tif | parallel mk_tiles.sh {} 1 2 3 2 12 ./png ./tms http://10.1.8.20/test_lmotta  
+ls -1 *.tif | parallel mk_tiles.sh {} 2 17 ./png ./tms http://10.1.8.20/test_lmotta  
 
 ## Packages used by script
 

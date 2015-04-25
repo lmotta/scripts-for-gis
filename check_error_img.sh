@@ -1,16 +1,16 @@
 #!/bin/bash
 #
 # ***************************************************************************
-# Name                 : Footprint Add URL of TMS
-# Description          : Add URL od TMS in GeoJson
+# Name                 : Check image
+# Description          : If image have error, print ERROR
 #
 # Arguments: 
-# $1: GeoJSON
+# $1: Image
 #
-# Dependencies         : None
+# Dependencies         : gdal 1.10.1 (gdalinfo)
 #
 # ***************************************************************************
-# begin                : 2015-03-02 (yyyy-mm-dd)
+# begin                : 2015-04-24 (yyyy-mm-dd)
 # copyright            : (C) 2015 by Luiz Motta
 # email                : motta dot luiz at gmail.com
 # ***************************************************************************
@@ -19,11 +19,11 @@
 #
 # 0000-00-00:
 # - None
-#
+# 
 # ***************************************************************************
 #
 # Example:
-#   footprint_add_url_tms.sh LC8_229-066_20140724_LGN00_r6g5b4.geoJSON http://catalog/lc8
+#   check_img.sh LC8_229-066_20140724_LGN00_r6g5b4.tif
 #
 # ***************************************************************************
 # *                                                                         *
@@ -34,32 +34,38 @@
 # *                                                                         *
 # ***************************************************************************
 #
-msg_error(){
-  local name_script=$(basename $0)
-  echo "Usage: $name_script <footprint_geojson> <url>" >&2
-  echo "<footprint_geojson> is the footprint geoJson" >&2
-  echo "<url> is the URL of server" >&2
+#
+clean(){
+  if [ -f "$in_img.error.txt" ] ; then
+    rm "$in_img.error.txt"
+  fi
+  if [ -f "$in_img.aux.xml" ] ; then
+    rm "$in_img.aux.xml"
+  fi
 }
 #
-totalargs=2
+msg_error(){
+  local name_script=$(basename $0)
+  echo "Usage: $name_script <image>" >&2
+  echo "<image> is the image" >&2
+  exit 1
+}
+#
+totalargs=1
 #
 if [ $# -ne $totalargs ] ; then
   msg_error
   exit 1
 fi
 #
-footprint_geojson=$1
-url=$2
+in_img=$1
 #
-if [ ! -f "$footprint_geojson" ] ; then
-  echo "The file '$footprint_geojson' not exist" >&2
-  exit 1
+gdalinfo -mm -stats $in_img 2> "$in_img.error.txt" >/dev/null;
+error=$(cat "$in_img.error.txt" | grep ERROR | head -1 | cut -d':' -f1);
+if [ "$error" == "" ]; then
+  clean
+  exit 0
 fi
-#
-basename_footprint_geojson=$(basename $footprint_geojson)
-name_footprint_geojson=${basename_footprint_geojson%.geojson}
-#
-#{ "image": "LC8_229-066_20141113_LGN00_r6g5b4" }
-# Separator  = @
-sed -i 's@ }, "geometry"@, "url_tms": "'$url'/'$name_footprint_geojson'_tms.xml" }, "geometry"@g' $footprint_geojson
-
+echo "$in_img:$error"
+clean
+exit 0
