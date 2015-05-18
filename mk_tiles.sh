@@ -12,7 +12,7 @@
 # $5: Diretory PNG
 # $6: URL for TMS
 #
-# Dependencies         : gdal 1.10.1, dans-gdal-script 0.23-2(gdal_contrast_stretch), tilers-tools 3.2.0(gdal_tiler.py), gdal_thumbnail.sh
+# Dependencies         : gdal 1.10.1, tilers-tools 3.2.0(gdal_tiler.py), gdal_thumbnail.sh
 #
 # ***************************************************************************
 # begin                : 2015-03-02 (yyyy-mm-dd)
@@ -22,8 +22,11 @@
 #
 # Revisions
 #
+# 2015-05-18
+# -Removed the contrast in image(gdal_contrast_stretch)
+#
 # 2015-04-25:
-# - Remove input number of R G B bands
+# -Removed input number of R G B bands
 #
 # ***************************************************************************
 #
@@ -111,29 +114,21 @@ url=$6
 dir_img=$(dirname $in_img)
 basename_img=$(basename $in_img)
 name_img=${basename_img%.*}
+fgdal_tms_xml=$dir_tms"/"$name_img"_tms.xml"
+fpng=$dir_png"/"$name_img".png"
 #
 nodata=0
 mode='tms'
-#
-fcontrast=$dir_img"/"$name_img"_contrast.tif"
-fpng=$dir_png"/"$name_img".png"
-fintms=$dir_img"/"$name_img
-fgdal_tms_xml=$dir_tms"/"$name_img"_tms.xml"
 #
 dateini=$(date +"%Y%m%d %H:%M:%S")
 arg=$name_img"("$dateini")...1"
 printf "%s" "$arg"
 #
-gdal_contrast_stretch -ndv 0 -outndv 0 -percentile-range 0.02 0.98  $in_img $fcontrast  > /dev/null
+gdal_thumbnail.sh $in_img 30  > /dev/null
+mv $dir_img"/"$name_img".png" $fpng
 #
 printf ".2"
-gdal_thumbnail.sh $fcontrast 30  > /dev/null
-mv $dir_img"/"$name_img"_contrast.png" $fpng
-#
-printf ".3"
-mv  $fcontrast $fintms
-gdal_tiler.py -q -p $mode --src-nodata $nodata,$nodata,$nodata --zoom $zmin:$zmax -t $dir_tms $fintms
-rm $fvrt $fintms
+gdal_tiler.py -q -p $mode --src-nodata $nodata,$nodata,$nodata --zoom $zmin:$zmax -t $dir_tms $in_img
 calc_gdal_tms
 echo $gdal_tms > $fgdal_tms_xml
 #
