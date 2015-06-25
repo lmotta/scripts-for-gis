@@ -50,9 +50,9 @@ calc_gdal_tms(){
 gdal_tms="<GDAL_WMS>
     <Service name=\"TMS\">
         <ServerUrl>"$url"/"$name_img".tms/\${z}/\${x}/\${y}.png</ServerUrl>
-        <SRS>EPSG:3857</SRS>#https://launchpad.net/ubuntu/trusty/amd64/dans-gdal-scripts
+        <SRS>EPSG:3857</SRS>
         <ImageFormat>image/png</ImageFormat>
-    </Service>fpng
+    </Service>
     <DataWindow>
         <UpperLeftX>-20037508.34</UpperLeftX>
         <UpperLeftY>20037508.34</UpperLeftY>
