@@ -12,7 +12,7 @@
 # $5: Diretory PNG
 # $6: URL for TMS
 #
-# Dependencies         : gdal 1.10.1, tilers-tools 3.2.0(gdal_tiler.py), gdal_thumbnail.sh
+# Dependencies         : gdal 1.10.1, dans-gdal-script 0.23-2(gdal_contrast_stretch), tilers-tools 3.2.0(gdal_tiler.py), gdal_thumbnail.sh
 #
 # ***************************************************************************
 # begin                : 2015-03-02 (yyyy-mm-dd)
@@ -22,11 +22,10 @@
 #
 # Revisions
 #
-# 2015-05-18
-# -Removed the contrast in image(gdal_contrast_stretch)
-#
+# 2015-07-16
+# - Added tag <TargetWindow> from image in GDAL_WMS
 # 2015-04-25:
-# -Removed input number of R G B bands
+# - Remove input number of R G B bands
 #
 # ***************************************************************************
 #
@@ -46,6 +45,63 @@
 # *                                                                         *
 # ***************************************************************************
 #
+calc_extent_json(){
+  local tmp_file=$(mktemp)
+  gdalinfo -nogcp -nomd -norat -noct $in_img > $tmp_file
+  local ul=$(cat $tmp_file | grep "Upper Left" | cut -d'(' -f2 | cut -d')' -f1 | sed  's/[[:blank:]]*//g')
+  local lr=$(cat $tmp_file | grep "Lower Right" | cut -d'(' -f2 | cut -d')' -f1 | sed  's/[[:blank:]]*//g')
+  local epsg=$(cat $tmp_file | grep EPSG | grep "]]$" | cut -d'[' -f2 | cut -d',' -f2 | cut -d']' -f1 | sed 's/"//g' )
+  rm $tmp_file
+  local ok_ul=$(expr length "$ul")
+  local ok_lr=$(expr length "$lr")
+  local ok_epsg=$(expr length "$epsg")
+  if [ $ok_ul -eq 0 -o $ok_lr -eq 0 -o $ok_epsg -eq 0 ] ; then
+    isok=0
+    return
+  fi
+  extent_json="{
+                \"type\": \"FeatureCollection\",
+                \"crs\": { \"type\": \"name\", \"properties\": { \"name\": \"urn:ogc:def:crs:EPSG::"$epsg"\" } },
+                \"features\": [
+                   { \"type\": \"Feature\", 
+                     \"properties\": { \"name\": \"UpperLeft\"}, 
+                     \"geometry\": { 
+                        \"type\": \"Point\", 
+                        \"coordinates\": [ "$ul" ] 
+                     } 
+                   },
+                   { \"type\": \"Feature\", 
+                     \"properties\":{ \"name\": \"LowerRight\"}, 
+                     \"geometry\": { 
+                        \"type\": \"Point\", 
+                        \"coordinates\": [ "$lr" ] 
+                     } 
+                   }
+                ]
+               }"
+  isok=1
+}
+#
+calc_target_window(){
+  local tmp_file=$(mktemp)
+  local extent_json3857="tmp.geojson"
+  local tmp_dir=$(mktemp -d)
+  echo $extent_json > $tmp_file
+  ogr2ogr -t_srs EPSG:3857 -f GeoJSON $tmp_dir"/"$extent_json3857 $tmp_file
+  #
+  local ulx=$(cat $tmp_dir"/"$extent_json3857 | grep "UpperLeft" | cut -d':' -f7 | cut -d',' -f1 | cut -d'[' -f2 | sed  's/[[:blank:]]*//g')
+  local uly=$(cat $tmp_dir"/"$extent_json3857 | grep "UpperLeft" | cut -d':' -f7 | cut -d',' -f2 | cut -d']' -f1 | sed  's/[[:blank:]]*//g')
+  local lrx=$(cat $tmp_dir"/"$extent_json3857 | grep "LowerRight" | cut -d':' -f7 | cut -d',' -f1 | cut -d'[' -f2 | sed  's/[[:blank:]]*//g')
+  local lry=$(cat $tmp_dir"/"$extent_json3857 | grep "LowerRight" | cut -d':' -f7 | cut -d',' -f2 | cut -d']' -f1 | sed  's/[[:blank:]]*//g')
+  # clean
+  rm -r $tmp_dir
+  rm $tmp_file
+  #
+  local ul="<UpperLeftX>"$ulx"</UpperLeftX><UpperLeftY>"$uly"</UpperLeftY>"
+  local lr="<LowerRightX>"$lrx"</LowerRightX><LowerRightY>"$lry"</LowerRightY>"
+  target_window="<TargetWindow>"$ul" "$lr"</TargetWindow>"
+}
+#
 calc_gdal_tms(){
 gdal_tms="<GDAL_WMS>
     <Service name=\"TMS\">
@@ -63,6 +119,7 @@ gdal_tms="<GDAL_WMS>
         <TileCountY>1</TileCountY>
         <YOrigin>bottom</YOrigin>
     </DataWindow>
+    "$target_window"
     <Projection>EPSG:3857</Projection>
     <BlockSizeX>256</BlockSizeX>
     <BlockSizeY>256</BlockSizeY>
@@ -124,11 +181,20 @@ dateini=$(date +"%Y%m%d %H:%M:%S")
 arg=$name_img"("$dateini")...1"
 printf "%s" "$arg"
 #
+# Remove gdal_contrast_stretch
+#
 gdal_thumbnail.sh $in_img 30  > /dev/null
 mv $dir_img"/"$name_img".png" $fpng
 #
 printf ".2"
 gdal_tiler.py -q -p $mode --src-nodata $nodata,$nodata,$nodata --zoom $zmin:$zmax -t $dir_tms $in_img
+#
+calc_extent_json
+if [[ $isok == 0 ]]; then
+  msg_error
+  exit 1
+fi
+calc_target_window
 calc_gdal_tms
 echo $gdal_tms > $fgdal_tms_xml
 #
