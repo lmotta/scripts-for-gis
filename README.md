@@ -34,6 +34,13 @@ nohup parallel 16b_2_8b_convert.sh {} < LIST_OF_IMAGES
 * Example (using parallel):  
 nohup parallel check_error_img.sh {} < LIST_OF_IMAGES  
 
+### create_gdal_tms_target_window.sh
+* Create GDAL_WMS file (XML) from image with no standard TAG <TargetWindows>  
+* Dependeces: gdal 1.10.1 (gdalinfo, ogr2ogr)  
+* Example:  
+create_gdal_tms_target_window.sh [IMAGE] MAX_ZOOM
+
+
 ### footprint.sh
 * Create GeoJson with border's polygon of image (limited with valid pixels)  
 * Dependeces: gdal 1.10.1(gdal_calc.py, gdal_sieve.py, gdal_edit.py and gdal_polygonize.py)  
