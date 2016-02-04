@@ -8,7 +8,7 @@ msg_error(){
   echo "Total of arguments is $runargs"  >&2
   echo "Usage: $name_script <image_original> <gcp_bb> <out_dir>" >&2
   echo "<image_original> is the file of original image to warp" >&2
-  echo "<gcp_bb> is the file of GCP with BlackBridge format" >&2
+  echo "<gcp_bb> is the file of GCP" >&2
   echo "<out_dir> is the directy for write news imagens" >&2
   exit 1
 }
