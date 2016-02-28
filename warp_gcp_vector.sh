@@ -6,7 +6,7 @@
 msg_error(){
   local name_script=$(basename $0)
   echo "Total of arguments is $runargs"  >&2
-  echo "Usage: $name_script <shp_original> <gcp_bb>" >&2
+  echo "Usage: $name_script <shp_original> <gcp>" >&2
   echo "<shp_original> is the file of original shapefile to warp" >&2
   echo "<gcp> is the file of GCP(Georef)" >&2
   exit 1
