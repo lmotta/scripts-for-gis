@@ -17,8 +17,8 @@
 #
 # Revisions
 #
-# 0000-00-00:
-# - None
+# 2016-03-23:
+# - Add time
 # 
 # ***************************************************************************
 #
@@ -74,11 +74,11 @@ fi
 #
 lat=$(cat $exif_gps | grep EXIF_GPSLatitude | cut -d '=' -f2)
 slat=$(cat $exif_gps | grep EXIF_GPSLatitudeRef | cut -d '=' -f2)
-slat=$(if [ $slat == 'S' ]; then echo '-1'; else echo '+1'; fi)
+slat=$(if [ $slat == 'S' ]; then echo '-1'; else echo '1'; fi)
 #
 long=$(cat $exif_gps | grep EXIF_GPSLongitude | cut -d '=' -f2)
 slong=$(cat $exif_gps | grep EXIF_GPSLongitudeRef | cut -d '=' -f2)
-slong=$(if [ $slong == 'W' ]; then echo '-1'; else echo '+1'; fi)
+slong=$(if [ $slong == 'W' ]; then echo '-1'; else echo '1'; fi)
 #
 in_calc_dd=$long
 calc_dd $slong
@@ -98,7 +98,12 @@ if [ -z "$gpsSatellites" ]; then
 fi
 gpsDate=$(cat $exif_gps | grep EXIF_GPSDateStamp | cut -d '=' -f2)
 #
+gpsTime=$(cat $exif_gps | grep EXIF_GPSTimeStamp | cut -d '=' -f2)
+in_calc_dd=$gpsTime
+calc_dd '1'
+gpsTime=$dd
+#
 rm $exif_gps
 #
-# header: echo "image;dop;total_sat;date;long;lat" > file.csv
-echo $in_img";"$gpsDOP";"$gpsSatellites";"$gpsDate";"$ddlong";"$ddlat
+# header: echo "image;dop;total_sat;date;time;long;lat" > file.csv
+echo $in_img";"$gpsDOP";"$gpsSatellites";"$gpsDate";"$gpsTime";"$ddlong";"$ddlat
