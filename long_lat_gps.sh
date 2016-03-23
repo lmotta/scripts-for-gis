@@ -2,7 +2,7 @@
 #
 # ***************************************************************************
 # Name                 : long_lat_gps.sh
-# Description          : Print "image;dop;total_sat;date;long;lat"
+# Description          : Print "image;dop;total_sat;datetime;long;lat;alt"
 #
 # Arguments: 
 # $1: Image
@@ -18,8 +18,8 @@
 # Revisions
 #
 # 2016-03-23:
-# - Add time
-# 
+# - Add time, datetime, altitude
+#
 # ***************************************************************************
 #
 # Example:
@@ -64,46 +64,52 @@ if [ ! -f "$in_img" ] ; then
   exit 1
 fi
 #
-exif_gps=$(mktemp)
-gdalinfo $in_img | grep EXIF_GPS > $exif_gps
-value=$(cat $exif_gps)
+exif_info=$(mktemp)
+gdalinfo $in_img | grep EXIF_ > $exif_info
+value=$(cat $exif_info)
 if [ -z "$value" ]; then #Test zero-length
+  echo "Image: "$in_img" don't have EXIF tags" 
+  exit 1
+fi
+#
+value=$(cat $exif_info | grep EXIF_GPS)
+if [ -z "$value" ]; then
   echo "Image: "$in_img" don't have EXIF_GPS tags" 
   exit 1
 fi
 #
-lat=$(cat $exif_gps | grep EXIF_GPSLatitude | cut -d '=' -f2)
-slat=$(cat $exif_gps | grep EXIF_GPSLatitudeRef | cut -d '=' -f2)
+lat=$(cat $exif_info | grep EXIF_GPSLatitude= | cut -d '=' -f2)
+slat=$(cat $exif_info | grep EXIF_GPSLatitudeRef= | cut -d '=' -f2)
 slat=$(if [ $slat == 'S' ]; then echo '-1'; else echo '1'; fi)
-#
-long=$(cat $exif_gps | grep EXIF_GPSLongitude | cut -d '=' -f2)
-slong=$(cat $exif_gps | grep EXIF_GPSLongitudeRef | cut -d '=' -f2)
-slong=$(if [ $slong == 'W' ]; then echo '-1'; else echo '1'; fi)
-#
-in_calc_dd=$long
-calc_dd $slong
-ddlong=$dd
-#
 in_calc_dd=$lat
 calc_dd $slat
-ddlat=$dd
+lat=$dd
 #
-gpsDOP=$(cat $exif_gps | grep EXIF_GPSDOP | cut -d '=' -f2 | sed 's/(//g;s/)//g')
+long=$(cat $exif_info | grep EXIF_GPSLongitude= | cut -d '=' -f2)
+slong=$(cat $exif_info | grep EXIF_GPSLongitudeRef= | cut -d '=' -f2)
+slong=$(if [ $slong == 'W' ]; then echo '-1'; else echo '1'; fi)
+in_calc_dd=$long
+calc_dd $slong
+long=$dd
+#
+alt=$(cat $exif_info | grep EXIF_GPSAltitude= | cut -d '=' -f2)
+if [ -z "$alt" ]; then
+  alt="None"
+else
+  alt=$(echo $alt | sed 's/(//g;s/)//g')
+fi
+#
+gpsDOP=$(cat $exif_info | grep EXIF_GPSDOP= | cut -d '=' -f2 | sed 's/(//g;s/)//g')
 if [ -z "$gpsDOP" ]; then
   gpsDOP="None"
 fi
-gpsSatellites=$(cat $exif_gps | grep EXIF_GPSSatellites | cut -d '=' -f2)
+gpsSatellites=$(cat $exif_info | grep EXIF_GPSSatellites= | cut -d '=' -f2)
 if [ -z "$gpsSatellites" ]; then
   gpsSatellites="None"
 fi
-gpsDate=$(cat $exif_gps | grep EXIF_GPSDateStamp | cut -d '=' -f2)
+datetime=$(cat $exif_info | grep EXIF_DateTime= | cut -d '=' -f2)
 #
-gpsTime=$(cat $exif_gps | grep EXIF_GPSTimeStamp | cut -d '=' -f2)
-in_calc_dd=$gpsTime
-calc_dd '1'
-gpsTime=$dd
+rm $exif_info
 #
-rm $exif_gps
-#
-# header: echo "image;dop;total_sat;date;time;long;lat" > file.csv
-echo $in_img";"$gpsDOP";"$gpsSatellites";"$gpsDate";"$gpsTime";"$ddlong";"$ddlat
+# header: echo "image;dop;total_sat;datetime;long;lat;alt" > file.csv
+echo $in_img";"$gpsDOP";"$gpsSatellites";"$datetime";"$long";"$lat";"$alt
