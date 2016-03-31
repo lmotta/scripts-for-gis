@@ -7,7 +7,7 @@
 # Arguments: 
 # $1: Image
 #
-# Dependencies         : gdal 1.10.1(gdal_calc.py, gdal_sieve.py, gdal_edit.py and gdal_polygonize.py)
+# Dependencies         : gdal 1.10.1(gdal_calc.py, gdal_sieve.py, gdal_edit.py and gdal_polygonize.py, ogr2ogr)
 #
 # ***************************************************************************
 # begin                : 2015-03-02 (yyyy-mm-dd)
@@ -17,8 +17,8 @@
 #
 # Revisions
 #
-# 0000-00-00:
-# - None
+# 2016-03-31:
+# - Create multipolygon, added a field of total of parts 
 #
 # ***************************************************************************
 #
@@ -98,10 +98,14 @@ if [ "$code" != 0 ]
 then
   exit $code
 fi
+# 
+tmp_file=$footprint_geojson".tmp"
+ogr2ogr -dialect SQLITE -sql "SELECT DN, ST_Union( geometry ), COUNT( 1 ) as total_part FROM OGRGeoJSON WHERE DN = 1" -f "GeoJSON" $tmp_file $footprint_geojson
+mv -f $tmp_file $footprint_geojson
 #
-ssed="s|{ \"DN\": 1 }|{ \"path\": \"$dir_img\", \"image\": \"$basename_img\" }|"
+ssed="s|\"DN\": 1,|\"path\": \"$dir_img\", \"image\": \"$basename_img\",|"
 sed -i "$ssed" "$footprint_geojson"
-printf ".created: $footprint_geojson\n"
+printf "\rCreated: %-10s\n" $footprint_geojson
 # Cleanup
 rm $zero_one_img $sieve_img
 #
