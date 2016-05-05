@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # ***************************************************************************
-# Name                 : Wget CBERS images
-# Description          : Download Zip from url(user order from email) and unzip select RGB bands
+# Name                 : Wget CBERS RGB
+# Description          : Download Zip from url(user order from email) with only Bands R G B and unzip them
 #
 # Arguments: 
 # $1: user order
@@ -14,7 +14,7 @@
 #
 # ***************************************************************************
 # begin                : 2016-05-04 (yyyy-mm-dd)
-# copyright            : (C) 2015 by Luiz Motta
+# copyright            : (C) 2016 by Luiz Motta
 # email                : motta dot luiz at gmail.com
 # ***************************************************************************
 #
@@ -62,12 +62,11 @@ r=$2
 g=$3
 b=$4
 #
-search_string="BAND"$r"\|BAND"$g"\|BAND"$b
 url="http://imagens.dgi.inpe.br/cdsr/"$userorder
 #
 printf "Download ZIP's..."
-wget -q -r -np --no-parent -A.zip $url > /dev/null
-l_zip=$(find . -type f -name "*.zip" | grep $search_string | sort)
+wget -q -r -np --no-parent -A "*_BAND[$r$g$b].zip" $url
+l_zip=$(find . -type f -name "*.zip" | sort)
 total=$(echo $l_zip | wc -w)
 num=0
 for item in $l_zip
