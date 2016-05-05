@@ -10,7 +10,7 @@
 # $3: G band number
 # $4: B band number
 #
-# Dependencies         : wget, unzip
+# Dependencies         : wget, unzip, gdal_merge.py
 #
 # ***************************************************************************
 # begin                : 2016-05-04 (yyyy-mm-dd)
@@ -41,7 +41,7 @@
 download_cbers(){
   printf "Download ZIP's..."
   local url="http://imagens.dgi.inpe.br/cdsr/"$userorder
-  wget -q -r -np --no-parent -A "*_BAND[$r$g$b].zip" $url
+  wget -q -r -np -A "*_BAND[$r$g$b].zip" $url
   #
   for item in $(find . -type f -name "*.zip"); do mv $item .; done
   rm -r imagens.dgi.inpe.br
