@@ -39,9 +39,16 @@
 #
 ###
 download_cbers(){
-  printf "Download ZIP's..."
   local url="http://imagens.dgi.inpe.br/cdsr/"$userorder
-  wget -q -r -np -A "*_BAND[$r$g$b].zip" $url
+  #
+  local tmp_html=$userorder"_tmp.html"
+  wget -q -O $tmp_html -r -np -A "BAND" $url
+  local cmd_grep="grep -e BAND$r\.zip -e BAND$g\.zip -e BAND$b\.zip"
+  local total=$(cat $tmp_html | $(echo $cmd_grep) | wc -l)
+  rm $tmp_html
+  printf "Downloading %s ZIP's..." $total
+  #
+  wget -q -r -np -A "*_BAND$r\.zip" -A "*_BAND$g\.zip" -A "*_BAND$b\.zip" $url
   #
   for item in $(find . -type f -name "*.zip"); do mv $item .; done
   rm -r imagens.dgi.inpe.br
