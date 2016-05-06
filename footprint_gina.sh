@@ -55,7 +55,7 @@ if [ ! -f "$in_img" ]; then
   exit 1
 fi
 #
-dir_img=$(dirname $in_img)
+dir_img=$(readlink -f $(dirname $in_img))
 basename_img=$(basename $in_img)
 name_img=${basename_img%.*}
 #
