@@ -38,8 +38,8 @@
 #
 set_enviroment_pg(){
   PGHOSTADDR="10.1.8.58"
-  PGUSER="96328576749"
-  PGPASSWORD="lmotta&2015"
+  PGUSER="??"
+  PGPASSWORD="??"
   PGDATABASE="siscom"
   table_catalog=ibama.img_catalogo_landsat_a
   export PGUSER PGPASSWORD PGHOSTADDR PGDATABASE
