@@ -13,47 +13,57 @@
 
 ### 2_rgb.sh
 * Create RGB image (Ex.: image_r3g4b5.tif) 
-* Dependeces: gdal 1.10.1 (gdal_translate)  
+* Dependencies: gdal 1.10.1 (gdal_translate)  
 * Example (using parallel):  
 nohup parallel 2_rgb.sh {} 2 4 5 < LIST_OF_IMAGES  
 
 ### 16b_2_8b_convert.sh
 * Convert images of 16 to 8 bits (overwrite original file)  
-* Dependeces: gdal 1.10.1 (gdal_translate, gdalinfo, gdalbuildvrt)  
+* Dependencies: gdal 1.10.1 (gdal_translate, gdalinfo, gdalbuildvrt)  
 * Example (using parallel):  
 ls -1 *.tif | parallel 16b_2_8b_convert.sh {}  
 nohup parallel 16b_2_8b_convert.sh {} < LIST_OF_IMAGES  
 
 ### 16b_2_8b_convert_kdialog.sh
 * Using Kdialog (KDE)
-* Dependeces: 16b_2_8b_convert.sh  
+* Dependencies: 16b_2_8b_convert.sh  
 
 ### check_error_img.sh
 * Check error for read image(print ERROR if exist error)  
-* Dependeces: gdal 1.10.1 (gdalinfo)  
+* Dependencies: gdal 1.10.1 (gdalinfo)  
 * Example (using parallel):  
 nohup parallel check_error_img.sh {} < LIST_OF_IMAGES  
 
+
+### check_overlaps.py
+* Check overlap inside shapefile  
+* Dependencies: gdal, python-gdal  
+* Create CSV files: name_shapefile_overlaps.csv, name_shapefile_invalid.csv, name_shapefile_empty.csv   
+check_overlaps.py --multiproc name_shapefile  
+* Example(using multiprocessing):  
+check_overlaps.py --multiproc name_shapefile  
+
+
 ### create_gdal_tms_target_window.sh
 * Create GDAL_WMS file (XML) from image with no standard TAG <TargetWindows>  
-* Dependeces: gdal 1.10.1 (gdalinfo, ogr2ogr)  
+* Dependencies: gdal 1.10.1 (gdalinfo, ogr2ogr)  
 * Example:  
 create_gdal_tms_target_window.sh [IMAGE] MAX_ZOOM
 
 
 ### footprint.sh
 * Create GeoJson with border's polygon of image (limited with valid pixels)  
-* Dependeces: gdal 1.10.1(gdal_calc.py, gdal_sieve.py, gdal_edit.py and gdal_polygonize.py)  
+* Dependencies: gdal 1.10.1(gdal_calc.py, gdal_sieve.py, gdal_edit.py and gdal_polygonize.py)  
 * Example (using parallel):  
 nohup parallel footprint.sh {} < LIST_OF_IMAGES  
 
 ### footprint_kdialog.sh
 * Using Kdialog (KDE)
-* Dependeces: footprint.py  
+* Dependencies: footprint.py  
 
 ### footprint_add_url_tms.sh
 * Add URL of TMS in footprint(GeoJson) * NOT USE for others Geojson  
-* Dependeces: None  
+* Dependencies: None  
 * Example (using parallel):  
 nohup parallel footprint_add_url_tms.sh {} http://10.1.8.20/test_lmotta < LIST_OF_IMAGES  
 
@@ -65,7 +75,7 @@ nohup parallel footprint_convexhull.sh {}  < LIST_OF_IMAGES
 
 ### footprint_convexhull_kdialog.sh
 * Using Kdialog (KDE)
-* Dependeces: footprint_convexhull.py
+* Dependencies: footprint_convexhull.py
 
 ### footprint_extent.py
 * Create extent of image16b_2_8b_convert
@@ -75,29 +85,29 @@ nohup parallel footprint_extent.sh {}  < LIST_OF_IMAGES
 
 ### footprint_extent_kdialog.sh
 * Using Kdialog (KDE)
-* Dependeces: footprint_extent.py  
+* Dependencies: footprint_extent.py  
 
 ### footprint_append_shp.sh
 * Adds the footprint (GeoJson), all Geojson, inside shapefile (if not exist it is created)  
-* Dependeces: gdal 1.10.1(ogr2ogr)  
+* Dependencies: gdal 1.10.1(ogr2ogr)  
 * Example (NOT USE parallel!):  
 for item in $(ls -1 *.geojson); do footprint_append_shp.sh $item LC8_footprint.shp; done
 
 ### gdal_thumbnail.sh
 * Create thumbnail file(PNG) from image  
-* Dependeces: gdal 1.10.1(gdal_translate)  
+* Dependencies: gdal 1.10.1(gdal_translate)  
 * Example (use parallel!):  
 nohup parallel gdal_thumbnail.sh {} 30 < LIST_OF_IMAGES  
 
 ### mk_tiles.sh
 * Create TMS structure (directories and files) and XML for GDAL_WMS driver from image  
-* Dependeces: dans-gdal-script 0.23-2(gdal_contrast_stretch), tilers-tools   3.2.0(gdal_tiler.py), gdal_thumbnail.sh  
+* Dependencies: dans-gdal-script 0.23-2(gdal_contrast_stretch), tilers-tools   3.2.0(gdal_tiler.py), gdal_thumbnail.sh  
 * Example (use parallel!):  
 nohup parallel mk_tiles.sh {} 2 17 ./png ./tms http://10.1.8.20/test_lmotta < LIST_OF_IMAGES  
 
 ### ls_img_lst.sh
 * Count the number of items in lists in current directory
-* Dependeces: None
+* Dependencies: None
 * Example:  
 ls_img_lst.sh
 
