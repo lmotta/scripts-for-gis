@@ -38,7 +38,7 @@ nohup parallel check_error_img.sh {} < LIST_OF_IMAGES
 ### check_overlaps.py
 * Check overlap inside shapefile  
 * Dependencies: gdal, python-gdal  
-* Create CSV files: name_shapefile_overlaps.csv, name_shapefile_invalid.csv, name_shapefile_empty.csv   
+* Create CSV files: name_shapefile_overlap.csv, name_shapefile_invalid.csv, name_shapefile_empty.csv   
 check_overlaps.py --multiproc name_shapefile  
 * Example(using multiprocessing):  
 check_overlaps.py --multiproc name_shapefile  
