@@ -4,8 +4,7 @@
 /***************************************************************************
 Name                 : check_overlaps
 Description          : Check overlaps inside shapefile
-Arguments            : Geojson
-
+Arguments            : Shapefile (optional --multiproc)
                        -------------------
 begin                : 2016-12-17
 copyright            : (C) 2016 by Luiz Motta
