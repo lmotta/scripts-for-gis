@@ -62,10 +62,10 @@ class TemporaryLayer(object):
       fid = feat.GetFID()
       geom = feat.GetGeometryRef()
       if geom.IsEmpty():
-        fids_empty.append( { 'fid': fid } )
+        fids_empty.append( { '1_fid': fid } )
         continue
       if not geom.IsValid():
-        fids_invalid.append( { 'fid': fid } )
+        fids_invalid.append( { '1_fid': fid, '2_wkt': geom.ExportToWkt() } )
         continue
       fids_geom.append( { 'fid': fid, 'geom': geom.Clone() } )
     feat = None
@@ -136,9 +136,9 @@ class Overlaps(object):
         if ogr.wkbPolygon == g.GetGeometryType():
           wkt = g.ExportToWkt()
           dataOverlaps = {
-            'fid1': fid1, 'fid2': fid2,
-            'src': 'collection',
-            'area5880': getArea5880( g ), 'wkt': wkt
+            '1_fid1': fid1, '2_fid2': fid2,
+            '3_area5880': getArea5880( g ), '4_src': 'collection',
+            '5_wkt': wkt
           }
           overlaps.append( dataOverlaps )
 
@@ -164,9 +164,9 @@ class Overlaps(object):
         if geomType == ogr.wkbPolygon:
           wkt = geom.ExportToWkt()
           dataOverlaps = {
-            'fid1': fg['fid'], 'fid2': f['fid'],
-            'src': 'single',
-            'area5880': getArea5880( geom ), 'wkt': wkt
+            '1_fid1': fg['fid'], '2_fid2': f['fid'],
+            '3_area5880': getArea5880( geom ), '4_src': 'single',
+            '5_wkt': wkt
           }
           overlaps.append( dataOverlaps )
           continue
@@ -230,8 +230,8 @@ def run(pathfile, has_multiproc):
   def saveFiles():
     def save(l_dic, nameFile):
       c_sep = ';'
-      keys = l_dic[0].keys()
-      header = c_sep.join( keys )
+      keys = sorted( l_dic[0].keys() )
+      header = c_sep.join( [ l[2:] for l in keys ] )
       with open( nameFile, "w") as f:
         text = "{h}\n".format( h=header)
         f.write( text )
