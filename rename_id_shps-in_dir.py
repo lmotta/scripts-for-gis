@@ -3,7 +3,7 @@
 """
 /***************************************************************************
 Name                 : rename_id_shps-in_dir
-Description          : Rename shapefiles files by the ID of root directory(ID_aaaa)
+Description          : Rename shapefiles files by the ID of root directory
 Arguments            : Diretory for scan shapefiles
 
                        -------------------
@@ -46,8 +46,10 @@ def run(rootDir):
         vwildcard3 = "{0}.*".format( os.path.splitext( filename )[0] )
         filter2 = fnmatch.filter( filenames, vwildcard3 ) # names of shapefiles files        for name in         
         for name in filter2:
-          vold = os.path.join(root, name )
           newname = "{0}_{1}".format( idDir, name.split('_')[1] )
+          if name == newname:
+            continue
+          vold = os.path.join(root, name )
           vnew = os.path.join(root, newname )
           os.rename( vold, vnew)
   if totalRename == 0:
