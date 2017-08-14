@@ -174,7 +174,7 @@ def run(name_file, quiet_status):
 
     def createOutFeatures(inFeats, ct):
       def getValueEvent(inFeat):
-        vdate = inFeat['attributes']['DATA']
+        vdate = inFeat['attributes']['data']
         geom = inFeat['geom'].Clone()
         geom.Transform( ct )
         area = geom.Area() / 10000.0
