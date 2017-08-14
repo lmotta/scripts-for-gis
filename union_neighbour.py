@@ -148,13 +148,13 @@ def run(name_file, year, quiet_status):
 
     def createOutFeatures(inFeats, ct):
       def getValueEvent(inFeat):
-        day = inFeat['attributes']['day_of_year']
+        day = inFeat['attributes']['day_year']
         geom = inFeat['geom'].Clone()
         geom.Transform( ct )
         area = geom.Area() / 10000.0
         geom.Destroy()
 
-        return {'day_of_year': day, 'area_ha': area }
+        return {'day_year': day, 'area_ha': area }
 
       def getInitValues(inFeat, id_group):
         outFeat = {}
@@ -183,17 +183,17 @@ def run(name_file, year, quiet_status):
 
       def getSumSameDays( events ):
         new_events = []
-        days = map( lambda x: x['day_of_year'], events )
+        days = map( lambda x: x['day_year'], events )
         days = list( set( days ) )
         for item1 in days:
-          f_days = filter( lambda x: x['day_of_year'] == item1, events )
+          f_days = filter( lambda x: x['day_year'] == item1, events )
           if len( f_days ) == 1:
             total_area_ha = f_days[0]['area_ha']  
           else:
             total_area_ha = 0
             for item2 in f_days:
               total_area_ha += item2['area_ha'] 
-          event = { 'day_of_year': item1, 'area_ha': total_area_ha } 
+          event = { 'day_year': item1, 'area_ha': total_area_ha } 
           new_events.append( event )
 
         return new_events
@@ -206,7 +206,10 @@ def run(name_file, year, quiet_status):
       while loop:
         loop = False
         for item in inFeats:
-          feats = getFeaturesTouchSpatialFilter( layer, item['geom'], item['fid'] ) # Always has feats!
+          itemGeom = item['geom']
+          if itemGeom is None:
+            continue
+          feats = getFeaturesTouchSpatialFilter( layer, itemGeom, item['fid'] ) # Always has feats!
           # Add from Query inFeats
           id_group += 1
           outFeat = getInitValues( item, id_group )
@@ -216,7 +219,10 @@ def run(name_file, year, quiet_status):
             addValues( outFeat, item2 )
           # Add from Query by outFeat
           while True:
-            feats = getFeaturesTouchSpatialFilter( layer, outFeat['geom'] )
+            outGeom = outFeat['geom']
+            if outGeom is None:
+              continue
+            feats = getFeaturesTouchSpatialFilter( layer, outGeom )
             if len( feats ) == 0:
               break
             fids += map( lambda x: x['fid'], feats )
@@ -258,18 +264,18 @@ def run(name_file, year, quiet_status):
       s_jd = "%.04d%.03d" % ( year, day)
       return datetime.datetime.strptime( s_jd, '%Y%j' ).strftime("%Y-%m-%d")
 
-    events = sorted( outFeat['events'], key=lambda x: x['day_of_year'] )
+    events = sorted( outFeat['events'], key=lambda x: x['day_year'] )
     num_events = len( events )
-    day = events[0]['day_of_year']
+    day = events[0]['day_year']
     date_ini = getDate( day )
-    date_end = getDate( events[num_events - 1]['day_of_year'] )
+    date_end = getDate( events[num_events - 1]['day_year'] )
     area_ini_ha = events[0]['area_ha']
     #
     days_events = "%03d" % day
     area_end_ha = area_ini_ha
     area_events_ha = "%f" % area_ini_ha
     for item in events[1:]:
-      days_events = "%s;%03d" % ( days_events, item['day_of_year'] )
+      days_events = "%s;%03d" % ( days_events, item['day_year'] )
       area_end_ha += item['area_ha']
       area_events_ha = "%s;%f" % ( area_events_ha, item['area_ha'] )
     #
@@ -284,7 +290,7 @@ def run(name_file, year, quiet_status):
     }
 
   ogr.RegisterAll()
-  driver = ogr.GetDriverByName( "GeoJSON" )
+  driver = ogr.GetDriverByName( "ESRI Shapefile" )
 
   if not os.path.exists( name_file ):
     printStatus( "File '%s' not exist" % name_file, True )
@@ -361,11 +367,11 @@ def run(name_file, year, quiet_status):
 def main():
   parser = argparse.ArgumentParser(description='Create union neighbour polygon.' )
   parser.add_argument( '-q', '--quiet', action="store_false", help='Hides the processing status' )
-  parser.add_argument( 'geojson', metavar='GeoJSON', type=str, help='Name of GeoJSON file' )
+  parser.add_argument( 'shapefile', metavar='shapefile', type=str, help='Name of Shapefile' )
   parser.add_argument( 'year', metavar='Year', type=int, help='Year for julian days' )
 
   args = parser.parse_args()
-  return run( args.geojson, args.year, not args.quiet )
+  return run( args.shapefile, args.year, not args.quiet )
 
 if __name__ == "__main__":
     sys.exit( main() )
