@@ -338,7 +338,7 @@ def run(quiet_status):
   ogr.RegisterAll()
   ogr.UseExceptions()
   #
-  user, pwd = '96328576749', 'lpacheco17'
+  user, pwd = '???', '??'
   str_conn = "PG: host={} dbname={} user={} password={}".format( '10.1.25.143', 'siscom', user, pwd )
   schema = 'temp'
   table = 'alerta_filter'
